@@ -1173,3 +1173,101 @@ function setupHeaderAutoHide(){
   if (document.readyState === 'complete') measure();
   else window.addEventListener('load', measure, { once:true });
 })();
+
+/* ===================== Mobile center menu panel under header ===================== */
+(function setupMobileCenterMenu(){
+  const header = document.querySelector('header.global-header');
+  const btn = header ? header.querySelector('.hamburger-menu') : null;
+  if(!header || !btn) return;
+
+  const html = document.documentElement;
+
+  // 既に生成済みか判定用
+  let panel = null;
+
+  function buildPanel(){
+    if(panel) return panel;
+
+    // パネルDOM生成（ヘッダー直後に挿入）
+    panel = document.createElement('nav');
+    panel.className = 'mobile-menu-panel';
+    panel.setAttribute('aria-label', 'Mobile menu');
+
+    const box = document.createElement('div');
+    box.className = 'menu-box';
+
+    const ul = document.createElement('ul');
+    ul.className = 'menu-list';
+
+    // 既存ナビから項目を抽出（本殿 / 作品のサブ / X / Shop）
+    const desktopMenu = header.querySelector('.global-nav .menu');
+    if(desktopMenu){
+      // 1. 本殿
+      const hon = desktopMenu.querySelector('a[href$="index.html"]');
+      if(hon) ul.appendChild(liOf(hon));
+
+      // 2. 作品配下（奉納作品／時すでにオロチ／動くオロチ奉納殿）
+      const sub = desktopMenu.querySelector('.has-submenu .submenu');
+      if(sub){
+        sub.querySelectorAll('a').forEach(a => ul.appendChild(liOf(a)));
+      }
+
+      // 3. X
+      const x = desktopMenu.querySelector('.icon-link.x');
+      if(x) ul.appendChild(liOf(x));
+
+      // 4. Shop
+      const shop = desktopMenu.querySelector('.icon-link.shop');
+      if(shop) ul.appendChild(liOf(shop));
+    }
+
+    box.appendChild(ul);
+    panel.appendChild(box);
+
+    // ヘッダーの“外”に置く＝ヘッダーが常に上に見える
+    header.insertAdjacentElement('afterend', panel);
+    return panel;
+
+    function liOf(anchor){
+      const li = document.createElement('li');
+      const a = anchor.cloneNode(true);
+      // アクセシビリティ：新規タブ属性を維持/付与
+      const href = a.getAttribute('href') || '#';
+      if(/^https?:\/\//.test(href)){
+        a.setAttribute('target', '_blank');
+        a.setAttribute('rel', 'noopener noreferrer');
+      }
+      li.appendChild(a);
+      return li;
+    }
+  }
+
+  function openMenu(){
+    if (window.matchMedia('(max-width: 768px)').matches){
+      buildPanel();
+      html.classList.add('is-menu-open');
+      btn.setAttribute('aria-expanded', 'true');
+    }
+  }
+  function closeMenu(){
+    html.classList.remove('is-menu-open');
+    btn.setAttribute('aria-expanded', 'false');
+  }
+  function toggleMenu(){
+    if (html.classList.contains('is-menu-open')) closeMenu();
+    else openMenu();
+  }
+
+  // 既存ボタンのクリックにフック
+  btn.addEventListener('click', (e)=>{ e.preventDefault(); toggleMenu(); });
+
+  // 画面幅が広がったら自動的に閉じる
+  window.addEventListener('resize', ()=>{
+    if(!window.matchMedia('(max-width: 768px)').matches) closeMenu();
+  });
+
+  // ESCで閉じる
+  document.addEventListener('keydown', (e)=>{
+    if(e.key === 'Escape') closeMenu();
+  });
+})();

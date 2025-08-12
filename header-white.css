@@ -354,3 +354,70 @@ header.global-header > .header-ridge-row .header-ridge-single{
   font-family: var(--font-marugo) !important;
   font-size: 100%;
 }
+
+/* ===================== Mobile Nav (center box under header) ===================== */
+@media (max-width: 768px){
+
+  /* 1) ハンバーガーアイコンを60%に */
+  .global-header .hamburger-menu{
+    transform: scale(0.6);
+    transform-origin: center right; /* 右上の見た目を極力維持 */
+  }
+
+  /* 2) 既存の右側メニュー表示は隠す（スマホ時は使わない） */
+  .global-header .global-nav{
+    display: none !important;
+  }
+
+  /* 3) ヘッダーの直後に差し込む“中央ボックス” */
+  .mobile-menu-panel{
+    display: none;           /* デフォルト非表示：JSでopen時にblock */
+    width: 100%;
+    padding: 12px 16px;
+    box-sizing: border-box;
+  }
+  .mobile-menu-panel .menu-box{
+    max-width: 360px;        /* ボックス幅 */
+    margin: 8px auto 16px;   /* 画面中央 */
+    padding: 16px 20px;
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0,0,0,.08);
+    font-size: 0.875rem;     /* 文字サイズは控えめ（約14px想定） */
+    line-height: 1.6;
+  }
+
+  /* メニュー項目 */
+  .mobile-menu-panel .menu-list{
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+  }
+  .mobile-menu-panel .menu-list a{
+    text-decoration: none;
+    color: #2b2542;
+    position: relative;
+    padding-bottom: 2px;
+  }
+  .mobile-menu-panel .menu-list a::after{
+    content:"";
+    position:absolute; left:0; right:0; bottom:0;
+    height: 2px; background: currentColor;
+    opacity:0; transform: scaleX(.2);
+    transform-origin: left;
+    transition: opacity .18s ease, transform .18s ease;
+  }
+  .mobile-menu-panel .menu-list a:hover::after,
+  .mobile-menu-panel .menu-list a:focus-visible::after{
+    opacity:1; transform: scaleX(1);
+  }
+
+  /* 開いたときに表示 */
+  .is-menu-open .mobile-menu-panel{
+    display: block;
+  }
+}
